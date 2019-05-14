@@ -26,10 +26,41 @@ Uses [mapreduce streaming](https://hadoop.apache.org/docs/r3.1.2/hadoop-streamin
 
 `docker run -it ngeorge/ubuntu-hadoop-quickstart`
 
+`git clone https://github.com/Regis-University-Data-Science/simple_Hadoop_MapReduce_example.git`
+
+`wget http://norvig.com/ngrams/shakespeare.txt`
+
+Move text file to HDFS:
 ```bash
-mapred streaming \
+$ hdfs dfs -mkdir /shakespeare
+$ hdfs dfs -mkdir /shakespeare/input
+$ hdfs dfs -copyFromLocal shakespeare.txt /shakespeare/input
+$ hdfs dfs -ls /shakespeare/input
+```
+
+Run the MapReduce Python code:
+```bash
+$ cd simple_Hadoop_MapReduce_example
+$ mapred streaming \
     -mapper mapper.py \
     -reducer reducer.py \
     -input /shakespeare/input \
     -output /shakespeare/output
 ```
+
+Check results:
+
+`hdfs dfs -ls /shakespeare/output`
+
+`hdfs dfs -cat /shakespeare/output/part-00000`
+
+Copy to local disk:
+
+`hdfs dfs -copyToLocal /shakespeare/output/part-00000 result`
+
+View sorted word count:
+`sort -gr -k 2 result | head`
+
+To share data between the docker container and the host OS, use volumes:
+
+`docker run -v path_in:container_path -it`
